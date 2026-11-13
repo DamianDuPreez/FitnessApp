@@ -5,7 +5,9 @@ import { db } from '../db/db'
 import { useExerciseMap, useSettings } from '../hooks'
 import { FAMILIES, TIERS } from '../lib/achievements'
 import { celebrateBig } from '../lib/celebrate'
-import { RECORD_EMOJI, RECORD_LABELS } from '../lib/records'
+import { RECORD_LABELS } from '../lib/records'
+import { Award, Check, Clock, Layers, ListChecks, Trophy } from 'lucide-react'
+import { RECORD_ICONS } from '../components/Icons'
 import { summarize } from '../lib/summary'
 import { formatDuration, formatVolume, formatWeight } from '../lib/units'
 import { Badge } from '../components/Badge'
@@ -45,21 +47,24 @@ export function SummaryPage() {
   return (
     <div className="stack">
       <div className="hero">
-        <div className="big-emoji">{unseen?.length ? '🏅' : prCount ? '🏆' : '✅'}</div>
-        <h1 style={{ marginTop: 12 }}>{prCount ? 'New records!' : 'Workout complete!'}</h1>
+        <div className={`hero-mark ${prCount || unseen?.length ? 'gold' : ''}`}>
+          {unseen?.length ? <Award size={46} strokeWidth={1.8} /> : prCount ? <Trophy size={46} strokeWidth={1.8} /> : <Check size={50} strokeWidth={2.4} />}
+        </div>
+        <div className="eyebrow" style={{ marginTop: 22 }}>{prCount ? 'New records' : 'Workout complete'}</div>
+        <h1 style={{ marginTop: 4 }}>{prCount ? `${prCount} personal record${prCount > 1 ? 's' : ''}` : 'Nice work'}</h1>
         <p className="muted">{workout.name}</p>
       </div>
 
       <div className="tiles">
-        <div className="tile"><div className="value">{formatDuration(duration)}</div><div className="label">Duration</div></div>
-        <div className="tile"><div className="value">{formatVolume(summary.volumeKg, settings.unit)}</div><div className="label">Volume</div></div>
-        <div className="tile"><div className="value">{summary.setCount}</div><div className="label">Sets</div></div>
-        <div className="tile"><div className="value">{prCount}</div><div className="label">PRs</div></div>
+        <div className="tile"><div className="label"><Clock size={14} /> Duration</div><div className="value">{formatDuration(duration)}</div></div>
+        <div className="tile"><div className="label"><Layers size={14} /> Volume</div><div className="value">{formatVolume(summary.volumeKg, settings.unit)}</div></div>
+        <div className="tile"><div className="label"><ListChecks size={14} /> Sets</div><div className="value">{summary.setCount}</div></div>
+        <div className="tile"><div className="label"><Trophy size={14} /> PRs</div><div className="value">{prCount}</div></div>
       </div>
 
       {unseen && unseen.length > 0 && (
         <div className="section stack">
-          <h2>🎉 Achievement{unseen.length > 1 ? 's' : ''} unlocked</h2>
+          <h2>Achievement{unseen.length > 1 ? 's' : ''} unlocked</h2>
           {unseen.map((a, i) => {
             const family = FAMILIES.find((f) => f.id === a.family)
             if (!family) return null
@@ -83,9 +88,11 @@ export function SummaryPage() {
         <div className="section">
           <h2>Personal records</h2>
           <div className="list">
-            {summary.prs.map(({ exercise, set, types }) => (
+            {summary.prs.map(({ exercise, set, types }) => {
+              const Icon = RECORD_ICONS[types[0]]
+              return (
               <div key={set.id} className="card tight row">
-                <span style={{ fontSize: '1.6rem' }}>{RECORD_EMOJI[types[0]]}</span>
+                <span className="icon-chip gold"><Icon size={18} /></span>
                 <div className="grow">
                   <div style={{ fontWeight: 700 }}>{exercise?.name}</div>
                   <div className="small muted">
@@ -95,7 +102,8 @@ export function SummaryPage() {
                   </div>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

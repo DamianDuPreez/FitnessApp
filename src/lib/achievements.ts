@@ -12,7 +12,8 @@ export interface Stats {
 export interface Level {
   threshold: number
   title: string
-  emoji: string
+  /** lucide icon name, resolved in components/Icons.tsx */
+  icon: string
 }
 
 export interface Family {
@@ -35,12 +36,12 @@ export const FAMILIES: Family[] = [
     description: 'Workouts logged',
     format: (v) => `${v}`,
     levels: [
-      { threshold: 1, title: 'First Rep', emoji: '🌱' },
-      { threshold: 10, title: 'Regular', emoji: '💪' },
-      { threshold: 25, title: 'Committed', emoji: '🔥' },
-      { threshold: 50, title: 'Gym Rat', emoji: '🐀' },
-      { threshold: 100, title: 'Centurion', emoji: '🛡️' },
-      { threshold: 250, title: 'Iron Veteran', emoji: '⚔️' },
+      { threshold: 1, title: 'First Rep', icon: 'Sprout' },
+      { threshold: 10, title: 'Regular', icon: 'Dumbbell' },
+      { threshold: 25, title: 'Committed', icon: 'Flame' },
+      { threshold: 50, title: 'Gym Regular', icon: 'Medal' },
+      { threshold: 100, title: 'Centurion', icon: 'Shield' },
+      { threshold: 250, title: 'Iron Veteran', icon: 'Swords' },
     ],
   },
   {
@@ -49,12 +50,12 @@ export const FAMILIES: Family[] = [
     description: 'Total weight lifted, ever',
     format: t,
     levels: [
-      { threshold: 1_500, title: 'Lifted a car', emoji: '🚗' },
-      { threshold: 6_000, title: 'Lifted an elephant', emoji: '🐘' },
-      { threshold: 12_000, title: 'Lifted a bus', emoji: '🚌' },
-      { threshold: 60_000, title: 'Lifted a tank', emoji: '🪖' },
-      { threshold: 150_000, title: 'Lifted a blue whale', emoji: '🐋' },
-      { threshold: 400_000, title: 'Lifted a jumbo jet', emoji: '✈️' },
+      { threshold: 1_500, title: 'Lifted a car', icon: 'Car' },
+      { threshold: 6_000, title: 'Lifted a truck', icon: 'Truck' },
+      { threshold: 12_000, title: 'Lifted a bus', icon: 'Bus' },
+      { threshold: 60_000, title: 'Lifted a locomotive', icon: 'TrainFront' },
+      { threshold: 150_000, title: 'Lifted a ship', icon: 'Ship' },
+      { threshold: 400_000, title: 'Lifted a jumbo jet', icon: 'Plane' },
     ],
   },
   {
@@ -63,11 +64,11 @@ export const FAMILIES: Family[] = [
     description: 'Heaviest barbell lift (20 kg bar)',
     format: t,
     levels: [
-      { threshold: 60, title: 'One plate', emoji: '🥉' },
-      { threshold: 100, title: 'Two plates', emoji: '🥈' },
-      { threshold: 140, title: 'Three plates', emoji: '🥇' },
-      { threshold: 180, title: 'Four plates', emoji: '💎' },
-      { threshold: 220, title: 'Five plates', emoji: '👑' },
+      { threshold: 60, title: 'One plate', icon: 'Disc3' },
+      { threshold: 100, title: 'Two plates', icon: 'Disc3' },
+      { threshold: 140, title: 'Three plates', icon: 'Disc3' },
+      { threshold: 180, title: 'Four plates', icon: 'Disc3' },
+      { threshold: 220, title: 'Five plates', icon: 'Crown' },
     ],
   },
   {
@@ -76,12 +77,12 @@ export const FAMILIES: Family[] = [
     description: 'Weeks in a row hitting your weekly goal',
     format: (v) => `${v} wk`,
     levels: [
-      { threshold: 2, title: 'Back to back', emoji: '📅' },
-      { threshold: 4, title: 'One month strong', emoji: '🗓️' },
-      { threshold: 8, title: 'Habit formed', emoji: '🔗' },
-      { threshold: 12, title: 'Quarter of iron', emoji: '⛓️' },
-      { threshold: 26, title: 'Half-year hero', emoji: '🌗' },
-      { threshold: 52, title: 'Year of gains', emoji: '🌕' },
+      { threshold: 2, title: 'Back to back', icon: 'CalendarCheck' },
+      { threshold: 4, title: 'One month strong', icon: 'CalendarDays' },
+      { threshold: 8, title: 'Habit formed', icon: 'Link2' },
+      { threshold: 12, title: 'Quarter of iron', icon: 'CalendarRange' },
+      { threshold: 26, title: 'Half-year hero', icon: 'CalendarHeart' },
+      { threshold: 52, title: 'Year of gains', icon: 'Crown' },
     ],
   },
   {
@@ -90,10 +91,10 @@ export const FAMILIES: Family[] = [
     description: 'Different exercises tried',
     format: (v) => `${v}`,
     levels: [
-      { threshold: 5, title: 'Curious', emoji: '🧭' },
-      { threshold: 15, title: 'Well-rounded', emoji: '🗺️' },
-      { threshold: 30, title: 'Adventurer', emoji: '🏔️' },
-      { threshold: 50, title: 'Encyclopedia', emoji: '📚' },
+      { threshold: 5, title: 'Curious', icon: 'Compass' },
+      { threshold: 15, title: 'Well-rounded', icon: 'Map' },
+      { threshold: 30, title: 'Adventurer', icon: 'Mountain' },
+      { threshold: 50, title: 'Encyclopedia', icon: 'Library' },
     ],
   },
   {
@@ -102,10 +103,10 @@ export const FAMILIES: Family[] = [
     description: 'Most weight lifted in one workout',
     format: t,
     levels: [
-      { threshold: 2_500, title: 'Solid session', emoji: '⚡' },
-      { threshold: 5_000, title: 'Big day', emoji: '🌩️' },
-      { threshold: 10_000, title: 'Monster session', emoji: '🦍' },
-      { threshold: 20_000, title: 'Volume king', emoji: '🏛️' },
+      { threshold: 2_500, title: 'Solid session', icon: 'Zap' },
+      { threshold: 5_000, title: 'Big day', icon: 'CloudLightning' },
+      { threshold: 10_000, title: 'Monster session', icon: 'Gauge' },
+      { threshold: 20_000, title: 'Volume king', icon: 'Landmark' },
     ],
   },
 ]

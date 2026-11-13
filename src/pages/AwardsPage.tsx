@@ -5,6 +5,7 @@ import { useSettings } from '../hooks'
 import { FAMILIES, TIERS, achievementId, progressToNext } from '../lib/achievements'
 import { formatDate } from '../lib/format'
 import { Badge } from '../components/Badge'
+import { Award } from 'lucide-react'
 
 export function AwardsPage() {
   const settings = useSettings()
@@ -18,7 +19,7 @@ export function AwardsPage() {
     <div className="stack">
       <div className="page-header" style={{ marginBottom: 0 }}>
         <h1>Awards</h1>
-        <span className="tag pr">🏅 {unlocked.size} / {total}</span>
+        <span className="tag pr"><Award size={13} /> {unlocked.size} / {total}</span>
       </div>
       <p className="small muted" style={{ margin: 0 }}>
         Badges level up from {TIERS[0]} to {TIERS[TIERS.length - 1]}. Once earned, they're yours forever.
@@ -38,7 +39,7 @@ export function AwardsPage() {
             {next && (
               <div>
                 <div className="bar"><div style={{ width: `${pct}%` }} /></div>
-                <div className="tiny muted" style={{ marginTop: 4 }}>Next: {next.emoji} {next.title} at {f.format(next.threshold)}</div>
+                <div className="tiny muted" style={{ marginTop: 4 }}>Next: {next.title} at {f.format(next.threshold)}</div>
               </div>
             )}
             <div className="badge-grid">

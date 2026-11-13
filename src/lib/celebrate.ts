@@ -20,7 +20,7 @@ export function celebratePR() {
     spread: 70,
     startVelocity: 35,
     origin: { y: 0.25 },
-    colors: ['#ff6b2c', '#ffd23f', '#ffffff'],
+    colors: ['#536dfe', '#7d90ff', '#f0c35a', '#ffffff'],
     disableForReducedMotion: true,
   })
 }
@@ -30,7 +30,7 @@ export function celebrateBig() {
   buzz([60, 50, 60, 50, 120])
   if (reducedMotion()) return
   const end = Date.now() + 900
-  const colors = ['#ff6b2c', '#ffd23f', '#5ce1e6', '#ffffff']
+  const colors = ['#536dfe', '#7d90ff', '#f0c35a', '#ffffff']
   const frame = () => {
     void confetti({ particleCount: 4, angle: 60, spread: 60, origin: { x: 0, y: 0.7 }, colors, disableForReducedMotion: true })
     void confetti({ particleCount: 4, angle: 120, spread: 60, origin: { x: 1, y: 0.7 }, colors, disableForReducedMotion: true })

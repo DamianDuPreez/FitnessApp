@@ -19,7 +19,7 @@ export function RestTimer({ workout }: { workout: Workout }) {
     if (endsAt && remaining <= 0 && notified.current !== endsAt) {
       notified.current = endsAt
       buzz([200, 100, 200])
-      toast({ title: '⏰ Rest over', body: 'Time for your next set!' }, 2500)
+      toast({ title: 'Rest over', body: 'Time for your next set.', kind: 'info' }, 2500)
       void setRestTimer(workout.id!, null)
     }
   }, [remaining, endsAt, toast, workout.id])
@@ -36,12 +36,12 @@ export function RestTimer({ workout }: { workout: Workout }) {
     <div className="rest-bar" role="timer" aria-label="Rest timer">
       <div className="row between">
         <div>
-          <div className="tiny muted" style={{ fontWeight: 700 }}>REST</div>
+          <div className="eyebrow">Rest</div>
           <div className="rest-time">{formatDuration(remaining)}</div>
         </div>
         <div className="row">
-          <button className="btn sm" onClick={() => adjust(-15)}>−15</button>
-          <button className="btn sm" onClick={() => adjust(15)}>+15</button>
+          <button className="btn sm" onClick={() => adjust(-15)}>-15s</button>
+          <button className="btn sm" onClick={() => adjust(15)}>+15s</button>
           <button className="btn sm primary" onClick={() => setRestTimer(workout.id!, null)}>Skip</button>
         </div>
       </div>

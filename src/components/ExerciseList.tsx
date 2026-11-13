@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Check, Search } from 'lucide-react'
 import type { Exercise } from '../db/types'
 import { useExerciseMap } from '../hooks'
 import { titleCase } from '../lib/format'
@@ -49,25 +50,28 @@ export function ExerciseList({
   const item = (e: Exercise) => (
     <button key={e.id} className={`pick-item ${selected?.has(e.id) ? 'selected' : ''}`} onClick={() => onPick(e)}>
       <div className="grow">
-        <div style={{ fontWeight: 700 }} className="ellipsis">{e.name}</div>
+        <div className="pick-name ellipsis">{e.name}</div>
         <div className="tiny muted">
           {titleCase(e.primaryMuscles.join(', ') || 'full body')} · {titleCase(e.equipment)} · {TRACKING_LABEL[e.trackingType]}
         </div>
       </div>
-      {selected?.has(e.id) && <span style={{ color: 'var(--accent)', fontWeight: 900 }}>✓</span>}
+      {selected?.has(e.id) && <Check size={18} className="brand" />}
     </button>
   )
 
   return (
     <div className="stack" style={{ gap: 10 }}>
-      <input
-        className="input"
-        type="search"
-        placeholder="Search 750+ exercises…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        autoFocus={autoFocus}
-      />
+      <div className="search">
+        <Search size={18} />
+        <input
+          className="input"
+          type="search"
+          placeholder="Search 750+ exercises"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          autoFocus={autoFocus}
+        />
+      </div>
       <div className="chips">
         <button className={`chip ${group === null ? 'on' : ''}`} onClick={() => setGroup(null)}>All</button>
         {Object.keys(MUSCLE_GROUPS).map((g) => (
@@ -79,19 +83,19 @@ export function ExerciseList({
       <div>
         {custom.length > 0 && (
           <>
-            <div className="tiny muted" style={{ fontWeight: 800, marginTop: 6 }}>YOUR EXERCISES</div>
+            <div className="list-label">YOUR EXERCISES</div>
             {custom.map(item)}
           </>
         )}
         {popular.length > 0 && (
           <>
-            <div className="tiny muted" style={{ fontWeight: 800, marginTop: 6 }}>POPULAR</div>
+            <div className="list-label">POPULAR</div>
             {popular.map(item)}
           </>
         )}
         {rest.length > 0 && (
           <>
-            <div className="tiny muted" style={{ fontWeight: 800, marginTop: 10 }}>{searching ? 'MORE RESULTS' : 'ALL EXERCISES'}</div>
+            <div className="list-label">{searching ? 'MORE RESULTS' : 'ALL EXERCISES'}</div>
             {rest.map(item)}
           </>
         )}

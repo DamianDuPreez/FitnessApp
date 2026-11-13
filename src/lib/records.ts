@@ -133,10 +133,3 @@ export const RECORD_LABELS: Record<RecordType, string> = {
   duration: 'Longest time',
 }
 
-export const RECORD_EMOJI: Record<RecordType, string> = {
-  e1rm: '🏆',
-  weight: '🏋️',
-  reps: '🔁',
-  volume: '📦',
-  duration: '⏱️',
-}

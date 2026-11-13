@@ -11,14 +11,35 @@ import { AwardsPage } from './pages/AwardsPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { formatDuration } from './lib/units'
 import { useEffect } from 'react'
+import { BookOpen, ChevronRight, Dumbbell, House, Settings2, Sparkles, Trophy, type LucideIcon } from 'lucide-react'
 
-const NAV = [
-  { to: '/', label: 'Home', ico: '🏠' },
-  { to: '/history', label: 'History', ico: '📖' },
-  { to: '/exercises', label: 'Exercises', ico: '🏋️' },
-  { to: '/awards', label: 'Awards', ico: '🏅' },
-  { to: '/settings', label: 'Settings', ico: '⚙️' },
+const NAV: Array<{ to: string; label: string; Icon: LucideIcon }> = [
+  { to: '/', label: 'Home', Icon: House },
+  { to: '/history', label: 'History', Icon: BookOpen },
+  { to: '/exercises', label: 'Exercises', Icon: Dumbbell },
+  { to: '/awards', label: 'Awards', Icon: Trophy },
+  { to: '/settings', label: 'Settings', Icon: Settings2 },
 ]
+
+function navIndex(pathname: string): number {
+  const i = NAV.findIndex((n) => n.to !== '/' && pathname.startsWith(n.to))
+  return i === -1 ? 0 : i
+}
+
+function Dock({ pathname }: { pathname: string }) {
+  const index = navIndex(pathname)
+  return (
+    <nav className="dock" aria-label="Main">
+      <span className="dock-indicator" style={{ transform: `translateX(${index * 100}%)` }} aria-hidden />
+      {NAV.map(({ to, label, Icon }, i) => (
+        <NavLink key={to} to={to} end={to === '/'} className={() => (i === index ? 'active' : '')}>
+          <Icon size={21} strokeWidth={i === index ? 2.1 : 1.7} />
+          {label}
+        </NavLink>
+      ))}
+    </nav>
+  )
+}
 
 function ResumeBar() {
   const active = useActiveWorkout()
@@ -26,8 +47,10 @@ function ResumeBar() {
   if (!active) return null
   return (
     <Link to="/workout" className="resume-bar">
-      <span>▶ Workout in progress</span>
-      <span className="num">{formatDuration((now - active.startedAt) / 1000)}</span>
+      <span className="pulse" aria-hidden />
+      <span className="grow">Workout in progress</span>
+      <span className="num display">{formatDuration((now - active.startedAt) / 1000)}</span>
+      <ChevronRight size={18} />
     </Link>
   )
 }
@@ -39,9 +62,10 @@ function UpdatePrompt() {
   } = useRegisterSW()
   if (!needRefresh) return null
   return (
-    <div className="toasts" style={{ top: 'auto', bottom: 'calc(var(--nav-h) + env(safe-area-inset-bottom) + 72px)' }}>
-      <div className="toast row between">
-        <span style={{ fontWeight: 700 }}>✨ New version available</span>
+    <div className="toasts" style={{ top: 'auto', bottom: 'calc(var(--nav-h) + var(--dock-gap) + env(safe-area-inset-bottom) + 76px)' }}>
+      <div className="toast">
+        <Sparkles size={18} className="brand" />
+        <span className="t-title grow">New version available</span>
         <div className="row">
           <button className="btn sm ghost" onClick={() => setNeedRefresh(false)}>Later</button>
           <button className="btn sm primary" onClick={() => updateServiceWorker(true)}>Update</button>
@@ -77,16 +101,7 @@ function Shell() {
       {!fullScreen && (
         <>
           <ResumeBar />
-          <nav className="bottom-nav">
-            <div className="inner">
-              {NAV.map((n) => (
-                <NavLink key={n.to} to={n.to} end={n.to === '/'}>
-                  <span className="ico" aria-hidden>{n.ico}</span>
-                  {n.label}
-                </NavLink>
-              ))}
-            </div>
-          </nav>
+          <Dock pathname={pathname} />
         </>
       )}
       <UpdatePrompt />

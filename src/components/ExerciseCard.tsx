@@ -14,14 +14,17 @@ import {
 } from '../db/workouts'
 import { formatDuration, fromDisplayWeight, toDisplayWeight } from '../lib/units'
 import { parseNum } from '../lib/format'
-import { RECORD_EMOJI, RECORD_LABELS, estimate1RM } from '../lib/records'
+import { RECORD_LABELS, estimate1RM } from '../lib/records'
+import { ArrowDown, ArrowUp, Check, Ellipsis, Minus, Plus, Trash2 } from 'lucide-react'
+import { RecordIcons } from './Icons'
+import { titleCase } from '../lib/format'
 import { celebratePR } from '../lib/celebrate'
 import { useToast } from './Toasts'
 
 const NEXT_TYPE: Record<SetType, SetType> = { normal: 'warmup', warmup: 'drop', drop: 'failure', failure: 'normal' }
 const TYPE_LABEL: Record<SetType, string> = { normal: '', warmup: 'W', drop: 'D', failure: 'F' }
 
-/** "90" → 90, "1:30" → 90 */
+/** "90" -> 90, "1:30" -> 90 */
 export function parseDuration(v: string): number | null {
   const t = v.trim()
   if (!t) return null
@@ -58,19 +61,22 @@ export function ExerciseCard({ workoutId, exercise, sets, unit, restSec, isFirst
   return (
     <div className="ex-card">
       <div className="ex-head">
-        <Link to={`/exercises/${encodeURIComponent(exercise.id)}`} className="grow ellipsis">{exercise.name}</Link>
-        <button className="icon-btn" onClick={() => setMenu((m) => !m)} aria-label="Exercise options">⋯</button>
+        <div className="grow" style={{ minWidth: 0 }}>
+          <Link to={`/exercises/${encodeURIComponent(exercise.id)}`} className="ellipsis" style={{ display: 'block' }}>{exercise.name}</Link>
+          <div className="muscle">{titleCase(exercise.primaryMuscles.join(', ') || exercise.category)}</div>
+        </div>
+        <button className="icon-btn" onClick={() => setMenu((m) => !m)} aria-label="Exercise options" aria-expanded={menu}><Ellipsis size={20} /></button>
       </div>
       {menu && (
-        <div className="row" style={{ marginBottom: 8, flexWrap: 'wrap' }}>
-          <button className="btn sm" disabled={isFirst} onClick={() => moveExercise(workoutId, exercise.id, -1)}>↑ Move up</button>
-          <button className="btn sm" disabled={isLast} onClick={() => moveExercise(workoutId, exercise.id, 1)}>↓ Move down</button>
+        <div className="menu">
+          <button className="btn sm" disabled={isFirst} onClick={() => moveExercise(workoutId, exercise.id, -1)}><ArrowUp size={15} /> Up</button>
+          <button className="btn sm" disabled={isLast} onClick={() => moveExercise(workoutId, exercise.id, 1)}><ArrowDown size={15} /> Down</button>
           <button
             className="btn sm"
             disabled={sets.length <= 1}
             onClick={() => deleteSet(sets[sets.length - 1].id!)}
           >
-            − Last set
+            <Minus size={15} /> Last set
           </button>
           <button
             className="btn sm danger"
@@ -78,7 +84,7 @@ export function ExerciseCard({ workoutId, exercise, sets, unit, restSec, isFirst
               if (confirm(`Remove ${exercise.name} from this workout?`)) void removeExerciseFromWorkout(workoutId, exercise.id)
             }}
           >
-            Remove
+            <Trash2 size={15} /> Remove
           </button>
         </div>
       )}
@@ -94,7 +100,7 @@ export function ExerciseCard({ workoutId, exercise, sets, unit, restSec, isFirst
             <span className="center">Reps</span>
           </>
         )}
-        <span className="center">✓</span>
+        <span className="center"><Check size={13} strokeWidth={2.5} /></span>
       </div>
 
       {sets.map((s, i) => {
@@ -116,8 +122,8 @@ export function ExerciseCard({ workoutId, exercise, sets, unit, restSec, isFirst
         )
       })}
 
-      <button className="btn sm ghost block" style={{ marginTop: 6 }} onClick={() => addSet(workoutId, exercise.id)}>
-        + Add set
+      <button className="btn sm ghost block" style={{ marginTop: 6, color: 'var(--brand-hi)' }} onClick={() => addSet(workoutId, exercise.id)}>
+        <Plus size={16} /> Add set
       </button>
     </div>
   )
@@ -181,10 +187,10 @@ function SetRow({ set, label, prev: prevSession, above, exercise, unit, restSec 
       toast(
         {
           kind: 'pr',
-          title: `${RECORD_EMOJI[prs[0]]} New PR! ${exercise.name}`,
+          title: `New PR · ${exercise.name}`,
           body:
             prs.map((p) => RECORD_LABELS[p]).join(' · ') +
-            (prs.includes('e1rm') && e1rm ? ` — est. 1RM ${toDisplayWeight(e1rm, unit)} ${unit}` : ''),
+            (prs.includes('e1rm') && e1rm ? ` · est. 1RM ${toDisplayWeight(e1rm, unit)} ${unit}` : ''),
         },
         4500,
       )
@@ -223,7 +229,7 @@ function SetRow({ set, label, prev: prevSession, above, exercise, unit, restSec 
         {label}
       </button>
       <span className="prev">
-        {done && hasPR ? <span className="medal">{set.prs!.map((p) => RECORD_EMOJI[p]).join('')}</span> : prevLabel(prevSession, exercise, unit)}
+        {done && hasPR ? <RecordIcons types={set.prs!} /> : prevLabel(prevSession, exercise, unit)}
       </span>
       {isDuration ? (
         <input className="set-input" inputMode="numeric" placeholder={prev?.durationSec ? formatDuration(prev.durationSec) : '0:30'} value={dur} onChange={(e) => onDur(e.target.value)} disabled={done} aria-label="Time" />
@@ -233,7 +239,7 @@ function SetRow({ set, label, prev: prevSession, above, exercise, unit, restSec 
           <input className="set-input" inputMode="numeric" placeholder={placeholderR} value={reps} onChange={(e) => onReps(e.target.value)} disabled={done} aria-label="Reps" />
         </>
       )}
-      <button className={`check ${done ? 'on' : ''}`} onClick={toggle} aria-label={done ? 'Mark set not done' : 'Complete set'}>✓</button>
+      <button className={`check ${done ? 'on' : ''}`} onClick={toggle} aria-label={done ? 'Mark set not done' : 'Complete set'}><Check size={18} strokeWidth={2.6} /></button>
     </div>
   )
 }

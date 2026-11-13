@@ -1,10 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#0f1115"/>
-  <g fill="#ff6b2c">
-    <rect x="70" y="196" width="36" height="120" rx="12"/>
-    <rect x="112" y="160" width="44" height="192" rx="14"/>
-    <rect x="356" y="160" width="44" height="192" rx="14"/>
-    <rect x="406" y="196" width="36" height="120" rx="12"/>
-    <rect x="156" y="238" width="200" height="36" rx="10"/>
+  <defs>
+    <linearGradient id="mk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7d90ff"/>
+      <stop offset="1" stop-color="#3d4fd6"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#1a2240"/>
+      <stop offset="1" stop-color="#07090f"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#glow)"/>
+  <g transform="translate(64 64) scale(6)">
+    <path d="M8 25 L14 21 L14 43 L8 39 Z" fill="#607d8b"/>
+    <path d="M16 15 L23 11 L23 53 L16 49 Z" fill="url(#mk)"/>
+    <path d="M23 29 L41 29 L41 35 L23 35 Z" fill="#e9edf6"/>
+    <path d="M41 11 L48 15 L48 49 L41 53 Z" fill="url(#mk)"/>
+    <path d="M50 21 L56 25 L56 39 L50 43 Z" fill="#607d8b"/>
   </g>
 </svg>

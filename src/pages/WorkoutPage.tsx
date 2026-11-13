@@ -11,6 +11,7 @@ import { CustomExerciseForm } from '../components/CustomExerciseForm'
 import { RestTimer } from '../components/RestTimer'
 import { Sheet } from '../components/Sheet'
 import type { Exercise, WorkoutSet } from '../db/types'
+import { CircleCheck, Dumbbell, Plus, Timer } from 'lucide-react'
 
 /** Local state so fast typing isn't lost waiting on the database round-trip. */
 function WorkoutNameInput({ workoutId, initial }: { workoutId: number; initial: string }) {
@@ -55,7 +56,7 @@ export function WorkoutPage() {
   if (workout === null) {
     return (
       <div className="empty">
-        <div className="big-emoji">🏋️</div>
+        <div className="empty-icon"><Dumbbell size={26} /></div>
         <p>No workout in progress.</p>
         <button className="btn primary" onClick={() => navigate('/')}>Go home</button>
       </div>
@@ -74,7 +75,7 @@ export function WorkoutPage() {
     }
     const pending = sets.filter((s) => s.completed === 0 && (s.reps != null || s.weightKg != null || s.durationSec != null)).length
     const msg = pending
-      ? `Finish workout? ${pending} set${pending > 1 ? 's have' : ' has'} values but ${pending > 1 ? 'are' : 'is'} not ticked ✓ and will be dropped.`
+      ? `Finish workout? ${pending} set${pending > 1 ? 's have' : ' has'} values but ${pending > 1 ? 'are' : 'is'} not ticked and will be dropped.`
       : 'Finish workout?'
     if (!confirm(msg)) return
     setBusy(true)
@@ -95,8 +96,9 @@ export function WorkoutPage() {
         <div className="row between">
           <div className="grow">
             <WorkoutNameInput key={workout.id} workoutId={workout.id!} initial={workout.name} />
-            <div className="small muted num">
-              ⏱ {formatDuration((now - workout.startedAt) / 1000)} · {completed} set{completed === 1 ? '' : 's'} done
+            <div className="meta num">
+              <span><Timer size={14} /> {formatDuration((now - workout.startedAt) / 1000)}</span>
+              <span><CircleCheck size={14} /> {completed} set{completed === 1 ? '' : 's'}</span>
             </div>
           </div>
           <button className="btn success" onClick={finish} disabled={busy}>Finish</button>
@@ -105,7 +107,7 @@ export function WorkoutPage() {
 
       {workout.exercises.length === 0 && (
         <div className="empty">
-          <div className="big-emoji">💪</div>
+          <div className="empty-icon"><Plus size={26} /></div>
           <p>Add your first exercise to get started.</p>
         </div>
       )}
@@ -128,7 +130,7 @@ export function WorkoutPage() {
       })}
 
       <div className="stack" style={{ marginTop: 16 }}>
-        <button className="btn primary block big" onClick={() => setPicking(true)}>+ Add exercise</button>
+        <button className="btn primary block big" onClick={() => setPicking(true)}><Plus size={20} strokeWidth={2.5} /> Add exercise</button>
         <button
           className="btn ghost danger block"
           onClick={async () => {
@@ -148,7 +150,7 @@ export function WorkoutPage() {
         <Sheet
           title="Add exercise"
           onClose={() => setPicking(false)}
-          footer={<button className="btn block" onClick={() => { setPicking(false); setCreating(true) }}>+ Create custom exercise</button>}
+          footer={<button className="btn block" onClick={() => { setPicking(false); setCreating(true) }}><Plus size={16} /> Create custom exercise</button>}
         >
           <ExerciseList onPick={pick} selected={new Set(workout.exercises.map((e) => e.exerciseId))} />
         </Sheet>

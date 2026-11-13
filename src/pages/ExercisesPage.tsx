@@ -10,6 +10,19 @@ import { Sheet } from '../components/Sheet'
 import { formatDate, titleCase } from '../lib/format'
 import { buildBests, countsForRecords, estimate1RM } from '../lib/records'
 import { formatDuration, formatWeight, platesPerSide, toDisplayWeight } from '../lib/units'
+import { ChevronDown, ChevronLeft, Plus, Trash2, Trophy } from 'lucide-react'
+import { RECORD_ICONS } from '../components/Icons'
+import type { RecordType } from '../db/types'
+
+function BestTile({ type, label, value }: { type: RecordType; label: string; value: string }) {
+  const Icon = RECORD_ICONS[type]
+  return (
+    <div className="tile">
+      <div className="label"><Icon size={14} /> {label}</div>
+      <div className="value">{value}</div>
+    </div>
+  )
+}
 
 export function ExercisesPage() {
   const navigate = useNavigate()
@@ -18,7 +31,7 @@ export function ExercisesPage() {
     <div>
       <div className="page-header">
         <h1>Exercises</h1>
-        <button className="btn sm" onClick={() => setCreating(true)}>+ Custom</button>
+        <button className="btn sm" onClick={() => setCreating(true)}><Plus size={16} /> Custom</button>
       </div>
       <ExerciseList onPick={(e) => navigate(`/exercises/${encodeURIComponent(e.id)}`)} />
       {creating && (
@@ -44,13 +57,13 @@ function E1rmChart({ points, unit }: { points: Array<{ t: number; v: number }>; 
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Estimated 1RM over time">
         <defs>
           <linearGradient id="fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stopColor="var(--accent)" stopOpacity="0.35" />
-            <stop offset="1" stopColor="var(--accent)" stopOpacity="0" />
+            <stop offset="0" stopColor="var(--brand-hi)" stopOpacity="0.35" />
+            <stop offset="1" stopColor="var(--brand-hi)" stopOpacity="0" />
           </linearGradient>
         </defs>
         <path d={`${d} L${x(last.t)},${H} L${x(points[0].t)},${H} Z`} fill="url(#fill)" />
-        <path d={d} fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-        {points.map((p) => <circle key={p.t} cx={x(p.t)} cy={y(p.v)} r="3" fill="var(--accent)" />)}
+        <path d={d} fill="none" stroke="var(--brand-hi)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        {points.map((p) => <circle key={p.t} cx={x(p.t)} cy={y(p.v)} r="3" fill="var(--brand-hi)" />)}
       </svg>
       <div className="row between tiny muted">
         <span>{formatDate(minT)}</span>
@@ -92,7 +105,7 @@ export function ExerciseDetailPage() {
   return (
     <div className="stack">
       <div className="page-header" style={{ marginBottom: 0 }}>
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Back">←</button>
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Back"><ChevronLeft size={22} /></button>
         <div className="grow">
           <h1>{exercise.name}</h1>
           <div className="small muted">{titleCase(exercise.primaryMuscles.join(', '))} · {titleCase(exercise.equipment)}</div>
@@ -101,13 +114,13 @@ export function ExerciseDetailPage() {
 
       <div className="tiles">
         {isDuration ? (
-          <div className="tile"><div className="value">{bests.duration ? formatDuration(bests.duration) : '—'}</div><div className="label">⏱️ Longest</div></div>
+          <BestTile type="duration" label="Longest" value={bests.duration ? formatDuration(bests.duration) : '—'} />
         ) : (
           <>
-            <div className="tile"><div className="value">{bests.e1rm ? formatWeight(bests.e1rm, u) : '—'}</div><div className="label">🏆 Est. 1RM</div></div>
-            <div className="tile"><div className="value">{bests.weight ? formatWeight(bests.weight, u) : '—'}</div><div className="label">🏋️ Heaviest</div></div>
-            <div className="tile"><div className="value">{bests.volume ? formatWeight(bests.volume, u) : '—'}</div><div className="label">📦 Best set volume</div></div>
-            <div className="tile"><div className="value">{bests.reps || '—'}</div><div className="label">🔁 Most reps</div></div>
+            <BestTile type="e1rm" label="Est. 1RM" value={bests.e1rm ? formatWeight(bests.e1rm, u) : '—'} />
+            <BestTile type="weight" label="Heaviest" value={bests.weight ? formatWeight(bests.weight, u) : '—'} />
+            <BestTile type="volume" label="Best set" value={bests.volume ? formatWeight(bests.volume, u) : '—'} />
+            <BestTile type="reps" label="Most reps" value={bests.reps ? String(bests.reps) : '—'} />
           </>
         )}
       </div>
@@ -146,8 +159,13 @@ export function ExerciseDetailPage() {
           {sessions.slice(0, 30).map(({ workout, sets }) => (
             <div key={workout.id} className="card tight">
               <div className="small" style={{ fontWeight: 700 }}>{formatDate(workout.startedAt)}</div>
-              <div className="small muted num">
-                {sets.map((s) => (isDuration ? formatDuration(s.durationSec ?? 0) : `${s.weightKg ? toDisplayWeight(s.weightKg, u) : 'BW'}×${s.reps}`) + (s.prs?.length ? ' 🏆' : '')).join(', ')}
+              <div className="small muted num" style={{ display: 'flex', flexWrap: 'wrap', gap: '2px 10px' }}>
+                {sets.map((s) => (
+                  <span key={s.id} style={s.prs?.length ? { color: 'var(--gold)', display: 'inline-flex', alignItems: 'center', gap: 3 } : undefined}>
+                    {isDuration ? formatDuration(s.durationSec ?? 0) : `${s.weightKg ? toDisplayWeight(s.weightKg, u) : 'BW'} × ${s.reps}`}
+                    {s.prs?.length ? <Trophy size={12} /> : null}
+                  </span>
+                ))}
               </div>
             </div>
           ))}
@@ -156,7 +174,7 @@ export function ExerciseDetailPage() {
 
       {exercise.instructions.length > 0 && (
         <details className="card">
-          <summary style={{ fontWeight: 700 }}>How to do it</summary>
+          <summary style={{ fontWeight: 700 }}>How to do it <ChevronDown size={18} /></summary>
           <ol className="small" style={{ paddingLeft: 18 }}>
             {exercise.instructions.map((s, i) => <li key={i} style={{ marginBottom: 6 }}>{s}</li>)}
           </ol>
@@ -174,7 +192,7 @@ export function ExerciseDetailPage() {
             }
           }}
         >
-          Delete custom exercise
+          <Trash2 size={16} /> Delete custom exercise
         </button>
       )}
     </div>

@@ -10,6 +10,8 @@ import { formatVolume } from '../lib/units'
 import { weeklyStreak } from '../lib/weeks'
 import { Badge } from '../components/Badge'
 import { WorkoutListItem } from './HistoryPage'
+import { AppMark } from '../components/Icons'
+import { ChevronRight, Flag, Flame, Play, Plus, Share, Target, X } from 'lucide-react'
 
 export function HomePage() {
   const navigate = useNavigate()
@@ -44,16 +46,22 @@ export function HomePage() {
 
   return (
     <div className="stack">
+      <div className="app-bar" style={{ marginBottom: 4 }}>
+        <div className="wordmark">
+          <AppMark size={34} />
+          <div className="wordmark-text">Fitness<span>App</span></div>
+        </div>
+      </div>
       <div>
-        <div className="muted small">{greeting()} 👋</div>
-        <h1>Let's train</h1>
+        <div className="eyebrow">{greeting()}</div>
+        <h1 style={{ marginTop: 4 }}>Let's train</h1>
       </div>
 
       {!hideInstall && isIOS() && !isStandalone() && (
         <div className="banner small">
-          <span style={{ fontSize: '1.3rem' }}>📲</span>
+          <Share size={18} />
           <div className="grow">
-            <b>Install this app:</b> tap <b>Share</b> → <b>Add to Home Screen</b>. This keeps your workouts safe. Safari may delete data from sites that aren't installed.
+            <b>Install this app:</b> tap <b>Share</b>, then <b>Add to Home Screen</b>. This keeps your workouts safe. Safari may delete data from sites that aren't installed.
           </div>
           <button
             className="icon-btn"
@@ -67,35 +75,42 @@ export function HomePage() {
               }
             }}
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
       )}
 
       {active ? (
-        <Link to="/workout" className="btn primary block big">▶ Resume workout</Link>
+        <Link to="/workout" className="btn primary block big"><Play size={18} fill="currentColor" /> Resume workout</Link>
       ) : (
-        <button className="btn primary block big" onClick={start}>+ Start workout</button>
+        <button className="btn primary block big" onClick={start}><Plus size={20} strokeWidth={2.5} /> Start workout</button>
       )}
 
       <div className="card row" style={{ gap: 16 }}>
         <div className="ring">
-          <svg width="84" height="84" viewBox="0 0 84 84">
-            <circle cx="42" cy="42" r={R} fill="none" stroke="var(--surface-2)" strokeWidth="8" />
+          <svg width="88" height="88" viewBox="0 0 84 84">
+            <defs>
+              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#7d90ff" />
+                <stop offset="1" stopColor="#3d4fd6" />
+              </linearGradient>
+            </defs>
+            <circle cx="42" cy="42" r={R} fill="none" stroke="var(--surface-3)" strokeWidth="8" />
             <circle
-              cx="42" cy="42" r={R} fill="none" stroke="var(--accent)" strokeWidth="8" strokeLinecap="round"
+              cx="42" cy="42" r={R} fill="none" stroke="url(#ringGrad)" strokeWidth="8" strokeLinecap="round"
               strokeDasharray={C} strokeDashoffset={C * (1 - goalPct)} style={{ transition: 'stroke-dashoffset .6s' }}
             />
           </svg>
           <div className="label num">{streak.thisWeekCount}/{settings.weeklyGoal}</div>
         </div>
         <div className="grow">
-          <div style={{ fontWeight: 800 }}>
-            {streak.thisWeekCount >= settings.weeklyGoal ? 'Weekly goal hit! 🎯' : 'This week'}
+          <div className="eyebrow">This week</div>
+          <div style={{ fontWeight: 700, margin: '2px 0', gap: 6 }} className="row">
+            {streak.thisWeekCount >= settings.weeklyGoal ? <><Target size={16} className="brand" /> Weekly goal hit</> : 'Keep it going'}
           </div>
           <div className="small muted">
             {streak.current > 0
-              ? `🔥 ${streak.current} week${streak.current > 1 ? 's' : ''} in a row hitting your goal`
+              ? <span className="pill-stat"><Flame size={14} /> {streak.current} week{streak.current > 1 ? 's' : ''} in a row</span>
               : `${settings.weeklyGoal - streak.thisWeekCount} more workout${settings.weeklyGoal - streak.thisWeekCount === 1 ? '' : 's'} to hit your weekly goal`}
           </div>
           {streak.best > streak.current && <div className="tiny muted">Best streak: {streak.best} weeks</div>}
@@ -113,25 +128,26 @@ export function HomePage() {
         <Link to="/awards" className="card card-link row" style={{ gap: 14 }}>
           <Badge family={nextGoal.f} level={nextGoal.f.levels.indexOf(nextGoal.next)} locked size={48} />
           <div className="grow">
-            <div className="tiny muted" style={{ fontWeight: 800 }}>NEXT MILESTONE</div>
+            <div className="eyebrow">Next milestone</div>
             <div style={{ fontWeight: 700 }}>{nextGoal.next.title}</div>
             <div className="bar" style={{ margin: '6px 0 4px' }}><div style={{ width: `${nextGoal.pct}%` }} /></div>
             <div className="tiny muted">
               {nextGoal.f.format(nextGoal.value)} / {nextGoal.f.format(nextGoal.next.threshold)} · {nextGoal.f.description.toLowerCase()}
             </div>
           </div>
+          <ChevronRight size={18} className="muted" />
         </Link>
       )}
 
       <div className="section">
         <div className="row between" style={{ marginBottom: 10 }}>
           <h2>Recent workouts</h2>
-          {finished.length > 0 && <Link to="/history" className="small" style={{ color: 'var(--accent)', fontWeight: 700 }}>See all</Link>}
+          {finished.length > 0 && <Link to="/history" className="small" style={{ color: 'var(--brand-hi)', fontWeight: 700 }}>See all</Link>}
         </div>
         {finished.length === 0 ? (
           <div className="empty card">
-            <div className="big-emoji">🏁</div>
-            <p>No workouts yet. Your first one unlocks your first badge!</p>
+            <div className="empty-icon"><Flag size={26} /></div>
+            <p>No workouts yet. Your first one unlocks your first badge.</p>
           </div>
         ) : (
           <div className="list">

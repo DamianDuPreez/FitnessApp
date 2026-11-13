@@ -7,6 +7,8 @@ import { isIOS, isStandalone, parseNum } from '../lib/format'
 import { fromDisplayWeight, toDisplayWeight } from '../lib/units'
 import { useToast } from '../components/Toasts'
 import { DEFAULT_SETTINGS, type Unit } from '../db/types'
+import { CircleCheck, Download, ShieldCheck, Upload } from 'lucide-react'
+import { AppMark } from '../components/Icons'
 
 export function SettingsPage() {
   const s = useSettings()
@@ -24,9 +26,9 @@ export function SettingsPage() {
     try {
       const { workouts } = await importBackup(file)
       await checkAchievements()
-      toast({ title: '✅ Backup restored', body: `${workouts} workout${workouts === 1 ? '' : 's'} imported` })
+      toast({ kind: 'success', title: 'Backup restored', body: `${workouts} workout${workouts === 1 ? '' : 's'} imported` })
     } catch (e) {
-      toast({ title: 'Import failed', body: e instanceof Error ? e.message : String(e) })
+      toast({ kind: 'error', title: 'Import failed', body: e instanceof Error ? e.message : String(e) })
     }
   }
 
@@ -38,26 +40,26 @@ export function SettingsPage() {
         <h2>Training</h2>
         <label className="field">
           Units
-          <div className="chips">
+          <div className="segmented">
             {(['kg', 'lb'] as Unit[]).map((u) => (
-              <button key={u} className={`chip ${s.unit === u ? 'on' : ''}`} style={{ textTransform: 'none' }} onClick={() => updateSettings({ unit: u })}>{u}</button>
+              <button key={u} type="button" className={s.unit === u ? 'on' : ''} onClick={() => updateSettings({ unit: u })}>{u}</button>
             ))}
           </div>
         </label>
         <label className="field">
           Weekly goal (workouts per week)
-          <div className="chips">
+          <div className="segmented">
             {[1, 2, 3, 4, 5, 6].map((n) => (
-              <button key={n} className={`chip ${s.weeklyGoal === n ? 'on' : ''}`} onClick={() => updateSettings({ weeklyGoal: n })}>{n}</button>
+              <button key={n} type="button" className={s.weeklyGoal === n ? 'on' : ''} onClick={() => updateSettings({ weeklyGoal: n })}>{n}</button>
             ))}
           </div>
         </label>
         <label className="field">
           Default rest timer
-          <div className="chips">
+          <div className="segmented">
             {[0, 60, 90, 120, 180, 240].map((n) => (
-              <button key={n} className={`chip ${s.defaultRestSec === n ? 'on' : ''}`} style={{ textTransform: 'none' }} onClick={() => updateSettings({ defaultRestSec: n })}>
-                {n === 0 ? 'Off' : n < 120 ? `${n}s` : `${n / 60} min`}
+              <button key={n} type="button" className={s.defaultRestSec === n ? 'on' : ''} onClick={() => updateSettings({ defaultRestSec: n })}>
+                {n === 0 ? 'Off' : n < 120 ? `${n}s` : `${n / 60}m`}
               </button>
             ))}
           </div>
@@ -78,9 +80,9 @@ export function SettingsPage() {
         </label>
         <label className="field">
           Barbell weight (kg)
-          <div className="chips">
+          <div className="segmented">
             {[20, 15, 10].map((n) => (
-              <button key={n} className={`chip ${s.barWeightKg === n ? 'on' : ''}`} style={{ textTransform: 'none' }} onClick={() => updateSettings({ barWeightKg: n })}>{n} kg</button>
+              <button key={n} type="button" className={s.barWeightKg === n ? 'on' : ''} onClick={() => updateSettings({ barWeightKg: n })}>{n} kg</button>
             ))}
           </div>
         </label>
@@ -95,17 +97,17 @@ export function SettingsPage() {
           className="btn block"
           onClick={async () => {
             downloadBlob(await exportBackup(), backupFileName())
-            toast({ title: '💾 Backup downloaded' })
+            toast({ kind: 'success', title: 'Backup downloaded' })
           }}
         >
-          ⬇ Export backup
+          <Download size={17} /> Export backup
         </button>
-        <button className="btn block" onClick={() => fileRef.current?.click()}>⬆ Import backup</button>
+        <button className="btn block" onClick={() => fileRef.current?.click()}><Upload size={17} /> Import backup</button>
         <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => { void onImport(e.target.files?.[0]); e.target.value = '' }} />
-        <div className="small">
-          Storage protection:{' '}
+        <div className="small row" style={{ gap: 6 }}>
+          <ShieldCheck size={16} className="brand" /> Storage protection:{' '}
           {persisted ? (
-            <b style={{ color: 'var(--success)' }}>On ✓</b>
+            <b style={{ color: 'var(--success)' }}>On</b>
           ) : (
             <>
               <b className="muted">Not guaranteed</b>{' '}
@@ -118,15 +120,16 @@ export function SettingsPage() {
       <div className="card stack">
         <h2>Install</h2>
         {isStandalone() ? (
-          <p className="small" style={{ margin: 0 }}>✅ Installed. You're using the app version.</p>
+          <p className="small row" style={{ margin: 0, gap: 6 }}><CircleCheck size={16} style={{ color: 'var(--success)' }} /> Installed. You're using the app version.</p>
         ) : isIOS() ? (
-          <p className="small" style={{ margin: 0 }}>In <b>Safari</b>, tap <b>Share</b> → <b>Add to Home Screen</b>. Installing keeps your data safe and makes it work like a real app, even offline.</p>
+          <p className="small" style={{ margin: 0 }}>In <b>Safari</b>, tap <b>Share</b>, then <b>Add to Home Screen</b>. Installing keeps your data safe and makes it work like a real app, even offline.</p>
         ) : (
-          <p className="small" style={{ margin: 0 }}>Open your browser menu (⋮) and choose <b>Install app</b> or <b>Add to Home screen</b>.</p>
+          <p className="small" style={{ margin: 0 }}>Open your browser menu and choose <b>Install app</b> or <b>Add to Home screen</b>.</p>
         )}
       </div>
 
-      <p className="tiny muted center">
+      <div className="center" style={{ display: 'grid', justifyItems: 'center', gap: 8, marginTop: 8 }}><AppMark size={28} /></div>
+      <p className="tiny muted center" style={{ marginTop: 0 }}>
         FitnessApp v{__APP_VERSION__} · Exercise data from free-exercise-db (public domain)
       </p>
     </div>
