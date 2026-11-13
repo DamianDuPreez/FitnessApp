@@ -1,0 +1,33 @@
+name: Bug report
+description: Something isn't working
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start a workout
+        2. Add Bench Press
+        3. ...
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options:
+        - iPhone (installed to Home Screen)
+        - iPhone (Safari browser)
+        - Android (installed)
+        - Android (browser)
+        - Desktop
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots / extra info
