@@ -12,6 +12,28 @@ import { RestTimer } from '../components/RestTimer'
 import { Sheet } from '../components/Sheet'
 import type { Exercise, WorkoutSet } from '../db/types'
 
+/** Local state so fast typing isn't lost waiting on the database round-trip. */
+function WorkoutNameInput({ workoutId, initial }: { workoutId: number; initial: string }) {
+  const [name, setName] = useState(initial)
+  return (
+    <input
+      className="name-input"
+      value={name}
+      onChange={(e) => {
+        setName(e.target.value)
+        void db.workouts.update(workoutId, { name: e.target.value })
+      }}
+      onBlur={() => {
+        if (!name.trim()) {
+          setName('Workout')
+          void db.workouts.update(workoutId, { name: 'Workout' })
+        }
+      }}
+      aria-label="Workout name"
+    />
+  )
+}
+
 export function WorkoutPage() {
   const workout = useActiveWorkout()
   const navigate = useNavigate()
@@ -72,12 +94,7 @@ export function WorkoutPage() {
       <div className="workout-top">
         <div className="row between">
           <div className="grow">
-            <input
-              className="name-input"
-              value={workout.name}
-              onChange={(e) => db.workouts.update(workout.id!, { name: e.target.value })}
-              aria-label="Workout name"
-            />
+            <WorkoutNameInput key={workout.id} workoutId={workout.id!} initial={workout.name} />
             <div className="small muted num">
               ⏱ {formatDuration((now - workout.startedAt) / 1000)} · {completed} set{completed === 1 ? '' : 's'} done
             </div>

@@ -6,7 +6,7 @@ import { backupFileName, downloadBlob, exportBackup, importBackup } from '../lib
 import { isIOS, isStandalone, parseNum } from '../lib/format'
 import { fromDisplayWeight, toDisplayWeight } from '../lib/units'
 import { useToast } from '../components/Toasts'
-import type { Unit } from '../db/types'
+import { DEFAULT_SETTINGS, type Unit } from '../db/types'
 
 export function SettingsPage() {
   const s = useSettings()
@@ -24,7 +24,7 @@ export function SettingsPage() {
     try {
       const { workouts } = await importBackup(file)
       await checkAchievements()
-      toast({ title: '✅ Backup restored', body: `${workouts} workouts imported` })
+      toast({ title: '✅ Backup restored', body: `${workouts} workout${workouts === 1 ? '' : 's'} imported` })
     } catch (e) {
       toast({ title: 'Import failed', body: e instanceof Error ? e.message : String(e) })
     }
@@ -68,8 +68,9 @@ export function SettingsPage() {
             className="input"
             inputMode="decimal"
             defaultValue={s.bodyweightKg ? toDisplayWeight(s.bodyweightKg, s.unit) : ''}
-            key={`${s.unit}-${s.bodyweightKg}`}
-            onBlur={(e) => {
+            // remount only when units change or real settings finish loading, not on every keystroke
+            key={`${s.unit}-${s === DEFAULT_SETTINGS ? 'loading' : 'loaded'}`}
+            onChange={(e) => {
               const n = parseNum(e.target.value)
               void updateSettings({ bodyweightKg: n ? fromDisplayWeight(n, s.unit) : null })
             }}
@@ -79,7 +80,7 @@ export function SettingsPage() {
           Barbell weight (kg)
           <div className="chips">
             {[20, 15, 10].map((n) => (
-              <button key={n} className={`chip ${s.barWeightKg === n ? 'on' : ''}`} onClick={() => updateSettings({ barWeightKg: n })}>{n} kg</button>
+              <button key={n} className={`chip ${s.barWeightKg === n ? 'on' : ''}`} style={{ textTransform: 'none' }} onClick={() => updateSettings({ barWeightKg: n })}>{n} kg</button>
             ))}
           </div>
         </label>

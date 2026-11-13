@@ -92,7 +92,7 @@ export function ExerciseList({
         {rest.length > 0 && (
           <>
             <div className="tiny muted" style={{ fontWeight: 800, marginTop: 10 }}>{searching ? 'MORE RESULTS' : 'ALL EXERCISES'}</div>
-            {rest.slice(0, searching ? 200 : 400).map(item)}
+            {rest.map(item)}
           </>
         )}
         {filtered.length === 0 && <div className="empty">No exercises match “{query}”.</div>}

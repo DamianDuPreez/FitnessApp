@@ -105,7 +105,10 @@ export function ExerciseCard({ workoutId, exercise, sets, unit, restSec, isFirst
             set={s}
             label={TYPE_LABEL[s.setType] || String(workingIndex)}
             prev={previous[i]}
-            above={i > 0 && sets[i - 1].completed ? sets[i - 1] : undefined}
+            above={sets
+              .slice(0, i)
+              .reverse()
+              .find((p) => p.completed === 1 && (p.setType === 'warmup') === (s.setType === 'warmup'))}
             exercise={exercise}
             unit={unit}
             restSec={restSec}

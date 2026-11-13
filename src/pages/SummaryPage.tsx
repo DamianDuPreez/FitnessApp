@@ -40,7 +40,7 @@ export function SummaryPage() {
 
   if (!workout) return null
   const duration = ((workout.endedAt ?? workout.startedAt) - workout.startedAt) / 1000
-  const prCount = summary.prs.reduce((n, p) => n + p.types.length, 0)
+  const prCount = summary.prs.length // sets with at least one record (matches History)
 
   return (
     <div className="stack">

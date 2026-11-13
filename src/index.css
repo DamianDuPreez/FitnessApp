@@ -163,6 +163,14 @@ label.field { display: flex; flex-direction: column; gap: 6px; font-weight: 600;
 
 .set-grid { display: grid; grid-template-columns: 40px 1fr 64px 56px 44px; gap: 6px; align-items: center; }
 .set-grid.duration { grid-template-columns: 40px 1fr 92px 44px; }
+@media (max-width: 360px) {
+  .app { padding-left: 12px; padding-right: 12px; }
+  .ex-card { padding: 10px 8px; }
+  .set-grid { grid-template-columns: 32px 1fr 56px 46px 38px; gap: 4px; }
+  .set-grid.duration { grid-template-columns: 32px 1fr 80px 38px; }
+  .check { width: 36px; }
+  .prev { font-size: 0.75rem; }
+}
 .set-grid.head { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 0 2px 4px; }
 .set-row { padding: 4px 2px; border-radius: 10px; transition: background .25s; }
 .set-row.done { background: var(--success-soft); }

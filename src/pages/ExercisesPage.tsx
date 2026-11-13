@@ -123,12 +123,18 @@ export function ExerciseDetailPage() {
         <div className="card stack" style={{ gap: 8 }}>
           <h3>Plate calculator</h3>
           <input className="input" inputMode="decimal" placeholder={`Target weight (${u})`} value={plateTarget} onChange={(e) => setPlateTarget(e.target.value)} />
-          {target > 0 && u === 'kg' && (
-            <div className="small">
-              Per side ({settings.barWeightKg} kg bar):{' '}
-              <b>{platesPerSide(target, settings.barWeightKg).join(' + ') || 'just the bar'}</b>
-            </div>
-          )}
+          {target > 0 && u === 'kg' && (() => {
+            const bar = settings.barWeightKg
+            if (target < bar) return <div className="small muted">That's lighter than the {bar} kg bar.</div>
+            const plates = platesPerSide(target, bar)
+            const loaded = bar + 2 * plates.reduce((a, b) => a + b, 0)
+            return (
+              <div className="small">
+                Per side ({bar} kg bar): <b>{plates.join(' + ') || 'just the bar'}</b>
+                {Math.abs(loaded - target) > 0.01 && <div className="tiny muted">Closest possible: {loaded} kg</div>}
+              </div>
+            )
+          })()}
           {u === 'lb' && <div className="tiny muted">Plate calculator currently supports kg plates.</div>}
         </div>
       )}

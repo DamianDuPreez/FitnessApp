@@ -23,7 +23,12 @@ export function backupFileName(): string {
 
 /** Replaces all workout data with the backup's contents. */
 export async function importBackup(file: File): Promise<{ workouts: number }> {
-  const data = JSON.parse(await file.text())
+  let data
+  try {
+    data = JSON.parse(await file.text())
+  } catch {
+    throw new Error('This file is not a FitnessApp backup.')
+  }
   if (data?.format !== FORMAT || !Array.isArray(data.workouts) || !Array.isArray(data.sets)) {
     throw new Error('This file is not a FitnessApp backup.')
   }
