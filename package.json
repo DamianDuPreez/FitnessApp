@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "exercises": "node scripts/build-exercises.mjs",
-    "icons": "pwa-assets-generator"
+    "icons": "pwa-assets-generator",
+    "deploy": "npm run build && npx firebase-tools deploy --only hosting"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",

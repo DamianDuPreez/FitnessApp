@@ -1,0 +1,67 @@
+name: Deploy to Firebase Hosting
+
+# Pushes to main deploy to the live site.
+# Pull requests get a temporary preview URL (posted as a PR comment).
+# Needs the repo secret FIREBASE_SERVICE_ACCOUNT. `firebase init hosting:github` creates it.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+concurrency:
+  group: firebase-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Fork PRs can't read secrets, so skip them
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      HAS_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Firebase is configured
+        id: cfg
+        run: |
+          if [ "$HAS_SECRET" != "true" ] || grep -q "REPLACE-WITH-FIREBASE-PROJECT-ID" .firebaserc; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Firebase not set up yet (missing FIREBASE_SERVICE_ACCOUNT secret or project ID in .firebaserc) - skipping deploy."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.cfg.outputs.ready == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+        if: steps.cfg.outputs.ready == 'true'
+
+      - run: npm run build
+        if: steps.cfg.outputs.ready == 'true'
+
+      - name: Deploy preview channel (pull requests)
+        if: steps.cfg.outputs.ready == 'true' && github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          expires: 7d
+
+      - name: Deploy live (main)
+        if: steps.cfg.outputs.ready == 'true' && github.event_name != 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live

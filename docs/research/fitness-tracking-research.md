@@ -192,7 +192,7 @@ What the research found:
 | Schema changes | Dexie migrations should be additive-only so offline users aren't broken | Version the DB schema carefully |
 | Rest timer while screen locked | JS timers pause in the background | Store the timer's **end timestamp** and compute remaining time; optionally use the Screen Wake Lock API during workouts |
 
-**Hosting:** GitHub Pages (free, HTTPS, required for service workers) via GitHub Actions. This is set up in this repo.
+**Hosting:** Firebase Hosting (free Spark plan, HTTPS, global CDN), deployed via GitHub Actions. Firebase also makes the "later" cloud sync easy: Firebase Auth + Firestore with offline persistence.
 
 ---
 
@@ -240,7 +240,7 @@ Store weight in **kg internally** and convert for display. That way switching be
 
 ### Later
 - Strength-level standards, monthly/yearly recap
-- Cloud sync + accounts (e.g. Supabase/Firebase) so data survives a lost phone
+- Cloud sync + accounts (Firebase Auth + Firestore, since we're already on Firebase) so data survives a lost phone
 - Programs with automatic progression (Liftosaur/Boostcamp style)
 - Live tracking (heart rate, wearables)
 

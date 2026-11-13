@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// GitHub Pages serves the app from /FitnessApp/; the deploy workflow sets BASE_PATH.
+// Firebase Hosting serves from the domain root. Set BASE_PATH only if hosting under a sub-path.
 const base = process.env.BASE_PATH ?? '/'
 
 export default defineConfig({
