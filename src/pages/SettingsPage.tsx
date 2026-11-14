@@ -9,6 +9,7 @@ import { useToast } from '../components/Toasts'
 import { DEFAULT_SETTINGS, type Unit } from '../db/types'
 import { CircleCheck, Download, ShieldCheck, Upload } from 'lucide-react'
 import { AppMark } from '../components/Icons'
+import { showIntro } from '../components/Intro'
 
 export function SettingsPage() {
   const s = useSettings()
@@ -65,7 +66,7 @@ export function SettingsPage() {
           </div>
         </label>
         <label className="field">
-          Bodyweight ({s.unit}) <span className="tiny muted" style={{ fontWeight: 400 }}>optional, for future strength levels</span>
+          Bodyweight ({s.unit}) <span className="hint tiny">optional, for future strength levels</span>
           <input
             className="input"
             inputMode="decimal"
@@ -126,6 +127,24 @@ export function SettingsPage() {
         ) : (
           <p className="small" style={{ margin: 0 }}>Open your browser menu and choose <b>Install app</b> or <b>Add to Home screen</b>.</p>
         )}
+      </div>
+
+      <div className="card stack">
+        <h2>Help</h2>
+        <p className="small" style={{ margin: 0 }}>New here, or showing someone else how it works?</p>
+        <button
+          className="btn block"
+          onClick={() => {
+            try {
+              localStorage.removeItem('hint-logging')
+            } catch {
+              /* ignore */
+            }
+            showIntro()
+          }}
+        >
+          Replay the intro guide
+        </button>
       </div>
 
       <div className="center" style={{ display: 'grid', justifyItems: 'center', gap: 8, marginTop: 8 }}><AppMark size={28} /></div>

@@ -27,9 +27,9 @@ export function WorkoutListItem({ workout }: { workout: Workout }) {
   const duration = ((workout.endedAt ?? workout.startedAt) - workout.startedAt) / 1000
   const prCount = summary.prs.length
   return (
-    <Link to={`/history/${workout.id}`} className="card card-link">
+    <Link to={`/history/${workout.id}`} className="rule-row" style={{ display: 'block' }}>
       <div className="row between">
-        <div style={{ fontWeight: 700 }} className="ellipsis grow">{workout.name}</div>
+        <div className="title ellipsis grow">{workout.name}</div>
         {prCount > 0 && <span className="tag pr"><Trophy size={12} /> {prCount} PR{prCount > 1 ? 's' : ''}</span>}
       </div>
       <div className="meta">
@@ -37,7 +37,7 @@ export function WorkoutListItem({ workout }: { workout: Workout }) {
         <span><Clock size={13} /> {formatDuration(duration)}</span>
         <span><Layers size={13} /> {formatVolume(summary.volumeKg, settings.unit)}</span>
       </div>
-      <div className="small" style={{ marginTop: 8, color: 'var(--text-2)' }}>
+      <div className="small ellipsis" style={{ marginTop: 8, color: 'var(--text-2)' }}>
         {workout.exercises.slice(0, 4).map((e) => exMap.get(e.exerciseId)?.name).filter(Boolean).join(' · ')}
         {workout.exercises.length > 4 && <span className="muted"> +{workout.exercises.length - 4} more</span>}
       </div>
@@ -60,14 +60,14 @@ export function HistoryPage() {
       <div className="page-header"><h1>History</h1></div>
       {workouts.length === 0 && (
         <div className="empty">
-          <div className="empty-icon"><BookOpen size={26} /></div>
+          <div className="empty-icon"><BookOpen size={22} strokeWidth={1.5} /></div>
           <p>Your finished workouts will show up here.</p>
         </div>
       )}
       {[...groups].map(([month, list]) => (
-        <div key={month} className="section" style={{ marginTop: 16 }}>
-          <div className="list-label">{month} · {list.length} workout{list.length > 1 ? 's' : ''}</div>
-          <div className="list">{list.map((w) => <WorkoutListItem key={w.id} workout={w} />)}</div>
+        <div key={month} className="section" style={{ marginTop: 8 }}>
+          <div className="list-label">{month} · {list.length} session{list.length > 1 ? 's' : ''}</div>
+          <div className="rules">{list.map((w) => <WorkoutListItem key={w.id} workout={w} />)}</div>
         </div>
       ))}
     </div>
@@ -87,7 +87,7 @@ export function WorkoutDetailPage() {
   return (
     <div className="stack">
       <div className="page-header" style={{ marginBottom: 0 }}>
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Back"><ChevronLeft size={22} /></button>
+        <button className="icon-btn" style={{ marginLeft: -12 }} onClick={() => navigate(-1)} aria-label="Back"><ChevronLeft size={22} strokeWidth={1.5} /></button>
         <div className="grow">
           <h1 className="ellipsis">{workout.name}</h1>
           <div className="small muted">{formatDate(workout.startedAt, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · {formatTime(workout.startedAt)}</div>
@@ -104,16 +104,16 @@ export function WorkoutDetailPage() {
         const exSets = sets.filter((s) => s.exerciseId === we.exerciseId)
         let n = 0
         return (
-          <div key={we.exerciseId} className="card">
-            <Link to={`/exercises/${encodeURIComponent(we.exerciseId)}`} style={{ fontWeight: 700, color: 'var(--brand-hi)' }}>{ex?.name ?? 'Unknown exercise'}</Link>
+          <div key={we.exerciseId} style={{ borderTop: '1px solid var(--line)', paddingTop: 16 }}>
+            <Link to={`/exercises/${encodeURIComponent(we.exerciseId)}`} style={{ fontWeight: 600, fontSize: '1.02rem' }}>{ex?.name ?? 'Unknown exercise'}</Link>
             <div style={{ marginTop: 8 }}>
               {exSets.map((s) => {
                 if (s.setType !== 'warmup') n++
                 const label = s.setType === 'warmup' ? 'W' : s.setType === 'drop' ? 'D' : s.setType === 'failure' ? 'F' : String(n)
                 return (
-                  <div key={s.id} className="row small" style={{ padding: '4px 0' }}>
-                    <span className="tag" style={{ minWidth: 28, textAlign: 'center' }}>{label}</span>
-                    <span className="grow num">
+                  <div key={s.id} className={`row ${s.prs?.length ? 'gold' : ''}`} style={{ padding: '6px 0', gap: 14 }}>
+                    <span className="figure" style={{ width: 20, fontSize: '0.85rem', color: s.prs?.length ? undefined : 'var(--muted)' }}>{label}</span>
+                    <span className="grow figure" style={{ fontSize: '1.05rem' }}>
                       {s.durationSec != null
                         ? formatDuration(s.durationSec)
                         : `${s.weightKg ? formatWeight(s.weightKg, settings.unit) : 'BW'} × ${s.reps}`}

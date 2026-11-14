@@ -11,12 +11,13 @@ import { AwardsPage } from './pages/AwardsPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { formatDuration } from './lib/units'
 import { useEffect } from 'react'
-import { BookOpen, ChevronRight, Dumbbell, House, Settings2, Sparkles, Trophy, type LucideIcon } from 'lucide-react'
+import { ArrowRight, BookOpen, Dumbbell, House, Settings2, Sparkles, Trophy, type LucideIcon } from 'lucide-react'
+import { Intro } from './components/Intro'
 
 const NAV: Array<{ to: string; label: string; Icon: LucideIcon }> = [
   { to: '/', label: 'Home', Icon: House },
   { to: '/history', label: 'History', Icon: BookOpen },
-  { to: '/exercises', label: 'Exercises', Icon: Dumbbell },
+  { to: '/exercises', label: 'Lifts', Icon: Dumbbell },
   { to: '/awards', label: 'Awards', Icon: Trophy },
   { to: '/settings', label: 'Settings', Icon: Settings2 },
 ]
@@ -30,13 +31,15 @@ function Dock({ pathname }: { pathname: string }) {
   const index = navIndex(pathname)
   return (
     <nav className="dock" aria-label="Main">
-      <span className="dock-indicator" style={{ transform: `translateX(${index * 100}%)` }} aria-hidden />
-      {NAV.map(({ to, label, Icon }, i) => (
-        <NavLink key={to} to={to} end={to === '/'} className={() => (i === index ? 'active' : '')}>
-          <Icon size={21} strokeWidth={i === index ? 2.1 : 1.7} />
-          {label}
-        </NavLink>
-      ))}
+      <div className="dock-inner">
+        <span className="dock-indicator" style={{ transform: `translateX(${index * 100}%)` }} aria-hidden />
+        {NAV.map(({ to, label, Icon }, i) => (
+          <NavLink key={to} to={to} end={to === '/'} className={() => (i === index ? 'active' : '')}>
+            <Icon size={20} strokeWidth={1.5} />
+            {label}
+          </NavLink>
+        ))}
+      </div>
     </nav>
   )
 }
@@ -48,9 +51,9 @@ function ResumeBar() {
   return (
     <Link to="/workout" className="resume-bar">
       <span className="pulse" aria-hidden />
-      <span className="grow">Workout in progress</span>
-      <span className="num display">{formatDuration((now - active.startedAt) / 1000)}</span>
-      <ChevronRight size={18} />
+      <span className="grow">Session in progress</span>
+      <span className="figure">{formatDuration((now - active.startedAt) / 1000)}</span>
+      <ArrowRight size={18} strokeWidth={1.6} />
     </Link>
   )
 }
@@ -62,7 +65,7 @@ function UpdatePrompt() {
   } = useRegisterSW()
   if (!needRefresh) return null
   return (
-    <div className="toasts" style={{ top: 'auto', bottom: 'calc(var(--nav-h) + var(--dock-gap) + env(safe-area-inset-bottom) + 76px)' }}>
+    <div className="toasts" style={{ top: 'auto', bottom: 'calc(var(--nav-h) + env(safe-area-inset-bottom) + 64px)' }}>
       <div className="toast">
         <Sparkles size={18} className="brand" />
         <span className="t-title grow">New version available</span>
@@ -105,6 +108,7 @@ function Shell() {
         </>
       )}
       <UpdatePrompt />
+      <Intro />
     </>
   )
 }

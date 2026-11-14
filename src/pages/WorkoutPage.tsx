@@ -11,7 +11,44 @@ import { CustomExerciseForm } from '../components/CustomExerciseForm'
 import { RestTimer } from '../components/RestTimer'
 import { Sheet } from '../components/Sheet'
 import type { Exercise, WorkoutSet } from '../db/types'
-import { CircleCheck, Dumbbell, Plus, Timer } from 'lucide-react'
+import { ChevronDown, Dumbbell, Lightbulb, Plus } from 'lucide-react'
+import { formatVolume } from '../lib/units'
+
+const HINT_KEY = 'hint-logging'
+
+/** One-time tips shown during the first session. */
+function LoggingHint() {
+  const [hidden, setHidden] = useState(() => {
+    try {
+      return localStorage.getItem(HINT_KEY) === '1'
+    } catch {
+      return false
+    }
+  })
+  if (hidden) return null
+  return (
+    <div className="hint">
+      <Lightbulb size={18} strokeWidth={1.6} className="brand" />
+      <div className="grow">
+        Enter weight and reps, then tap the <b>tick</b> to log the set. The rest timer starts on its own.
+        Tap the <b>set number</b> to mark a warm-up (W), drop set (D) or failure set (F).
+      </div>
+      <button
+        className="btn ghost sm"
+        onClick={() => {
+          setHidden(true)
+          try {
+            localStorage.setItem(HINT_KEY, '1')
+          } catch {
+            /* ignore */
+          }
+        }}
+      >
+        Got it
+      </button>
+    </div>
+  )
+}
 
 /** Local state so fast typing isn't lost waiting on the database round-trip. */
 function WorkoutNameInput({ workoutId, initial }: { workoutId: number; initial: string }) {
@@ -56,14 +93,17 @@ export function WorkoutPage() {
   if (workout === null) {
     return (
       <div className="empty">
-        <div className="empty-icon"><Dumbbell size={26} /></div>
+        <div className="empty-icon"><Dumbbell size={22} strokeWidth={1.5} /></div>
         <p>No workout in progress.</p>
         <button className="btn primary" onClick={() => navigate('/')}>Go home</button>
       </div>
     )
   }
 
-  const completed = sets.filter((s) => s.completed === 1).length
+  const completedSets = sets.filter((s) => s.completed === 1)
+  const completed = completedSets.length
+  const volumeKg = completedSets.filter((s) => s.setType !== 'warmup').reduce((n, s) => n + (s.weightKg ?? 0) * (s.reps ?? 0), 0)
+  const prSets = completedSets.filter((s) => s.prs?.length).length
 
   const finish = async () => {
     if (completed === 0) {
@@ -93,21 +133,22 @@ export function WorkoutPage() {
   return (
     <>
       <div className="workout-top">
-        <div className="row between">
-          <div className="grow">
-            <WorkoutNameInput key={workout.id} workoutId={workout.id!} initial={workout.name} />
-            <div className="meta num">
-              <span><Timer size={14} /> {formatDuration((now - workout.startedAt) / 1000)}</span>
-              <span><CircleCheck size={14} /> {completed} set{completed === 1 ? '' : 's'}</span>
-            </div>
-          </div>
-          <button className="btn success" onClick={finish} disabled={busy}>Finish</button>
+        <div className="controls">
+          <button className="icon-btn" onClick={() => navigate('/')} aria-label="Minimise session"><ChevronDown size={22} strokeWidth={1.5} /></button>
+          <button className="btn sm" onClick={finish} disabled={busy}>Finish</button>
+        </div>
+        <WorkoutNameInput key={workout.id} workoutId={workout.id!} initial={workout.name} />
+        <div className="workout-clock">{formatDuration((now - workout.startedAt) / 1000)}</div>
+        <div className="meta num">
+          <span>{completed} set{completed === 1 ? '' : 's'}</span>
+          <span>{formatVolume(volumeKg, settings.unit)}</span>
+          {prSets > 0 && <span className="gold">{prSets} PR{prSets === 1 ? '' : 's'}</span>}
         </div>
       </div>
 
       {workout.exercises.length === 0 && (
         <div className="empty">
-          <div className="empty-icon"><Plus size={26} /></div>
+          <div className="empty-icon"><Plus size={22} strokeWidth={1.5} /></div>
           <p>Add your first exercise to get started.</p>
         </div>
       )}
@@ -129,10 +170,12 @@ export function WorkoutPage() {
         )
       })}
 
-      <div className="stack" style={{ marginTop: 16 }}>
-        <button className="btn primary block big" onClick={() => setPicking(true)}><Plus size={20} strokeWidth={2.5} /> Add exercise</button>
+      {workout.exercises.length > 0 && <LoggingHint />}
+
+      <div className="stack" style={{ marginTop: 24 }}>
+        <button className="btn primary block big" onClick={() => setPicking(true)}>Add exercise <Plus size={20} strokeWidth={1.6} /></button>
         <button
-          className="btn ghost danger block"
+          className="btn ghost block" style={{ color: 'var(--danger)' }}
           onClick={async () => {
             if (confirm('Discard this workout? Everything logged in it will be deleted.')) {
               await discardWorkout(workout.id!)

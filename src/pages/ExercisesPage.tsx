@@ -30,7 +30,7 @@ export function ExercisesPage() {
   return (
     <div>
       <div className="page-header">
-        <h1>Exercises</h1>
+        <h1>Lifts</h1>
         <button className="btn sm" onClick={() => setCreating(true)}><Plus size={16} /> Custom</button>
       </div>
       <ExerciseList onPick={(e) => navigate(`/exercises/${encodeURIComponent(e.id)}`)} />
@@ -105,7 +105,7 @@ export function ExerciseDetailPage() {
   return (
     <div className="stack">
       <div className="page-header" style={{ marginBottom: 0 }}>
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Back"><ChevronLeft size={22} /></button>
+        <button className="icon-btn" style={{ marginLeft: -12 }} onClick={() => navigate(-1)} aria-label="Back"><ChevronLeft size={22} strokeWidth={1.5} /></button>
         <div className="grow">
           <h1>{exercise.name}</h1>
           <div className="small muted">{titleCase(exercise.primaryMuscles.join(', '))} · {titleCase(exercise.equipment)}</div>
