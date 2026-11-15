@@ -401,6 +401,14 @@ details > summary svg { transition: transform .25s; color: var(--muted); }
 .intro li { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--line); color: var(--text-2); font-size: 0.92rem; }
 .intro li svg { color: var(--brand-hi); margin-top: 2px; }
 .intro .step-body { margin-top: clamp(36px, 9vh, 110px); animation: pop .45s var(--ease-out); }
+.intro.signin { z-index: 65; overflow-y: auto; }
+.intro.signin .step-body { margin-top: clamp(28px, 6vh, 72px); }
+.intro.signin h1 { font-size: 2.1rem; }
+.or-rule { display: flex; align-items: center; gap: 12px; font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); }
+.or-rule::before, .or-rule::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.text-btn { background: none; border: 0; padding: 10px 0; color: var(--brand-hi); font-size: 0.85rem; font-weight: 500; }
+.text-btn.muted { color: var(--muted); }
+.text-btn:hover { color: var(--text); }
 .hint {
   display: flex; gap: 12px; align-items: flex-start; margin-top: 18px; padding: 14px 0 14px 14px;
   border-left: 2px solid var(--brand); background: linear-gradient(90deg, var(--brand-soft), transparent 80%);

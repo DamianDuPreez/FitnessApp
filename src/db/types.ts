@@ -1,8 +1,18 @@
+/** Fields used by cloud sync. Set automatically by the database hooks (see sync/localHooks.ts). */
+export interface Syncable {
+  /** Stable id shared across devices (workouts and sets; other tables use their own string id). */
+  uid?: string
+  /** Last local edit time, used to resolve conflicts (last write wins). */
+  updatedAt?: number
+  /** 1 = changed locally and not yet uploaded. */
+  dirty?: 0 | 1
+}
+
 export type TrackingType = 'weight_reps' | 'bodyweight' | 'duration'
 export type SetType = 'normal' | 'warmup' | 'drop' | 'failure'
 export type Unit = 'kg' | 'lb'
 
-export interface Exercise {
+export interface Exercise extends Syncable {
   id: string
   name: string
   category: string
@@ -21,7 +31,7 @@ export interface WorkoutExercise {
   note?: string
 }
 
-export interface Workout {
+export interface Workout extends Syncable {
   id?: number
   name: string
   startedAt: number
@@ -34,7 +44,7 @@ export interface Workout {
   restTotalSec?: number
 }
 
-export interface WorkoutSet {
+export interface WorkoutSet extends Syncable {
   id?: number
   workoutId: number
   exerciseId: string
@@ -51,7 +61,7 @@ export interface WorkoutSet {
 
 export type RecordType = 'e1rm' | 'weight' | 'reps' | 'volume' | 'duration'
 
-export interface Achievement {
+export interface Achievement extends Syncable {
   /** e.g. "workouts:3" = family "workouts", level index 3 */
   id: string
   family: string
@@ -61,7 +71,7 @@ export interface Achievement {
   seen: 0 | 1
 }
 
-export interface Settings {
+export interface Settings extends Syncable {
   id: 'app'
   unit: Unit
   weeklyGoal: number
@@ -69,6 +79,15 @@ export interface Settings {
   bodyweightKg: number | null
   barWeightKg: number
 }
+
+/** A record deleted locally that still has to be deleted in the cloud. */
+export interface Tombstone {
+  id?: number
+  collection: SyncCollection
+  key: string
+}
+
+export type SyncCollection = 'workouts' | 'sets' | 'exercises' | 'achievements' | 'settings'
 
 export const DEFAULT_SETTINGS: Settings = {
   id: 'app',

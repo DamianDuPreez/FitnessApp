@@ -7,13 +7,88 @@ import { isIOS, isStandalone, parseNum } from '../lib/format'
 import { fromDisplayWeight, toDisplayWeight } from '../lib/units'
 import { useToast } from '../components/Toasts'
 import { DEFAULT_SETTINGS, type Unit } from '../db/types'
-import { CircleCheck, Download, ShieldCheck, Upload } from 'lucide-react'
+import { CircleCheck, Cloud, CloudAlert, CloudOff, Download, ShieldCheck, Upload } from 'lucide-react'
 import { AppMark } from '../components/Icons'
 import { showIntro } from '../components/Intro'
+import { requestSignIn, useAuth } from '../sync/auth'
+import { pendingChangeCount, signOutAndClear, syncNow, useSyncStatus, type SyncStatus } from '../sync/sync'
+
+function ago(ts: number, now = Date.now()): string {
+  const s = Math.round((now - ts) / 1000)
+  if (s < 45) return 'just now'
+  if (s < 3600) return `${Math.round(s / 60)} min ago`
+  if (s < 86_400) return `${Math.round(s / 3600)} h ago`
+  return new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+}
+
+function statusLine(st: SyncStatus): { text: string; tone: 'ok' | 'muted' | 'error' } {
+  switch (st.state) {
+    case 'syncing':
+      return { text: 'Backing up…', tone: 'muted' }
+    case 'offline':
+      return { text: "You're offline. Changes will upload when you're back online.", tone: 'muted' }
+    case 'error':
+      return { text: `Couldn't back up: ${st.error ?? 'unknown error'}`, tone: 'error' }
+    default:
+      return st.lastSyncedAt ? { text: `Backed up ${ago(st.lastSyncedAt)}`, tone: 'ok' } : { text: 'Waiting to back up…', tone: 'muted' }
+  }
+}
+
+function AccountCard() {
+  const { user } = useAuth()
+  const status = useSyncStatus()
+  const [busy, setBusy] = useState(false)
+
+  if (!user) {
+    return (
+      <div className="card stack">
+        <h2>Account</h2>
+        <p className="small" style={{ margin: 0 }}>
+          You're not signed in, so your workouts only live on this phone. Sign in to back them up and use them on other devices.
+        </p>
+        <button className="btn primary block" onClick={requestSignIn}>Sign in or create account</button>
+      </div>
+    )
+  }
+
+  const line = statusLine(status)
+  const signOut = async () => {
+    setBusy(true)
+    try {
+      await syncNow()
+      const pending = await pendingChangeCount()
+      const msg = pending
+        ? `${pending} change${pending === 1 ? " hasn't" : "s haven't"} been backed up yet and will be lost. Sign out anyway?`
+        : 'Sign out? Your data stays safe in your account and is removed from this phone until you sign in again.'
+      if (confirm(msg)) await signOutAndClear()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="card stack">
+      <h2>Account</h2>
+      <div>
+        <div style={{ fontWeight: 600 }} className="ellipsis">{user.displayName || user.email}</div>
+        {user.displayName && <div className="small muted ellipsis">{user.email}</div>}
+      </div>
+      <div className="row small" style={{ gap: 8, color: line.tone === 'error' ? 'var(--danger)' : line.tone === 'ok' ? 'var(--text-2)' : 'var(--muted)' }}>
+        {line.tone === 'ok' ? <Cloud size={16} className="brand" /> : line.tone === 'error' ? <CloudAlert size={16} /> : <CloudOff size={16} />}
+        <span>{line.text}</span>
+      </div>
+      <div className="row" style={{ gap: 8 }}>
+        <button className="btn grow" disabled={busy || status.state === 'syncing'} onClick={() => void syncNow()}>Back up now</button>
+        <button className="btn danger grow" disabled={busy} onClick={() => void signOut()}>Sign out</button>
+      </div>
+    </div>
+  )
+}
 
 export function SettingsPage() {
   const s = useSettings()
   const toast = useToast()
+  const signedIn = !!useAuth().user
   const fileRef = useRef<HTMLInputElement>(null)
   const [persisted, setPersisted] = useState<boolean | null>(null)
 
@@ -36,6 +111,8 @@ export function SettingsPage() {
   return (
     <div className="stack">
       <div className="page-header" style={{ marginBottom: 0 }}><h1>Settings</h1></div>
+
+      <AccountCard />
 
       <div className="card stack">
         <h2>Training</h2>
@@ -92,7 +169,7 @@ export function SettingsPage() {
       <div className="card stack">
         <h2>Your data</h2>
         <p className="small muted" style={{ margin: 0 }}>
-          Everything is stored only on this device. Make a backup now and then, especially before changing phones.
+          Your data lives on this phone{signedIn ? ' and is backed up to your account automatically' : ''}. You can also save a backup file, for example before changing phones.
         </p>
         <button
           className="btn block"

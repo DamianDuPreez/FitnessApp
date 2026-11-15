@@ -13,6 +13,8 @@ import { formatDuration } from './lib/units'
 import { useEffect } from 'react'
 import { ArrowRight, BookOpen, Dumbbell, House, Settings2, Sparkles, Trophy, type LucideIcon } from 'lucide-react'
 import { Intro } from './components/Intro'
+import { SignInScreen } from './components/SignIn'
+import { useAuth } from './sync/auth'
 
 const NAV: Array<{ to: string; label: string; Icon: LucideIcon }> = [
   { to: '/', label: 'Home', Icon: House },
@@ -80,10 +82,21 @@ function UpdatePrompt() {
 
 function Shell() {
   const { pathname } = useLocation()
+  const { ready, user, skipped } = useAuth()
   const fullScreen = pathname === '/workout' || pathname.startsWith('/summary')
   useEffect(() => {
     window.scrollTo(0, 0) // newer browsers return a Promise here, so don't return it from the effect
   }, [pathname])
+
+  if (!ready) return null
+  if (!user && !skipped) {
+    return (
+      <>
+        <SignInScreen />
+        <Intro />
+      </>
+    )
+  }
 
   return (
     <>

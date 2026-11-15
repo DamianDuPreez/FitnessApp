@@ -1,4 +1,5 @@
 import { db } from '../db/db'
+import type { Tombstone } from '../db/types'
 
 const FORMAT = 'fitness-app-backup'
 const VERSION = 1
@@ -32,7 +33,15 @@ export async function importBackup(file: File): Promise<{ workouts: number }> {
   if (data?.format !== FORMAT || !Array.isArray(data.workouts) || !Array.isArray(data.sets)) {
     throw new Error('This file is not a FitnessApp backup.')
   }
-  await db.transaction('rw', [db.workouts, db.sets, db.exercises, db.achievements, db.settings], async () => {
+  await db.transaction('rw', [db.workouts, db.sets, db.exercises, db.achievements, db.settings, db.tombstones], async () => {
+    // Everything being replaced must also disappear from the cloud copy.
+    const replaced: Tombstone[] = [
+      ...(await db.workouts.toArray()).filter((w) => w.uid).map((w) => ({ collection: 'workouts' as const, key: w.uid! })),
+      ...(await db.sets.toArray()).filter((x) => x.uid).map((x) => ({ collection: 'sets' as const, key: x.uid! })),
+      ...(await db.achievements.toArray()).map((a) => ({ collection: 'achievements' as const, key: a.id })),
+      ...(await db.exercises.filter((e) => !!e.isCustom).toArray()).map((e) => ({ collection: 'exercises' as const, key: e.id })),
+    ]
+    await db.tombstones.bulkAdd(replaced)
     await db.workouts.clear()
     await db.sets.clear()
     await db.achievements.clear()

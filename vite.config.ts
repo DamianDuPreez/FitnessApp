@@ -36,6 +36,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,json}'],
+        // Firebase's sign-in pages (/__/auth/...) must reach the network, not the app shell.
+        navigateFallbackDenylist: [/^\/__\//],
       },
     }),
   ],

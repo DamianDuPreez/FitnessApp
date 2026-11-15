@@ -2,7 +2,7 @@
 
 A **Progressive Web App** for logging gym workouts: sets, reps and weights. It tracks personal records and celebrates milestones as you hit them.
 
-> For family use for now. It's deployed to Firebase Hosting but hidden from search engines (`noindex` meta, `X-Robots-Tag` header and `robots.txt`). No accounts: each person's data stays on their own phone.
+> For family use for now. It's deployed to Firebase Hosting but hidden from search engines (`noindex` meta, `X-Robots-Tag` header and `robots.txt`). Each family member signs in (Google or email) so their data is backed up and follows them to a new phone.
 
 ## What's in v0.1
 - **Fast logging:** each set pre-fills from last session (or from the set above). Tap ✓ to confirm, and the rest timer starts automatically.
@@ -51,6 +51,12 @@ To refresh the exercise library, download `dist/exercises.json` from free-exerci
 ```bash
 npm run exercises -- path/to/exercises.json
 ```
+
+## Accounts and cloud sync
+- **Sign-in:** Firebase Authentication (Google or email/password). People can also continue without an account; their data then stays on that phone only.
+- **Offline first:** the phone's IndexedDB (Dexie) is the source of truth. Every local change is stamped and flagged by database hooks (`src/sync/localHooks.ts`), deletions are queued as tombstones, and `src/sync/sync.ts` uploads them to Firestore and downloads changes from the person's other devices. Conflicts: the most recent edit wins.
+- **Data layout:** `users/{uid}/{workouts|sets|exercises|achievements|settings}/{id}`. `firestore.rules` only lets each person read and write their own documents.
+- **Signing out** removes the data from that phone (it stays in the account). A different person signing in on the same phone starts with a clean slate.
 
 ## Deployment (Firebase Hosting)
 The config is in `firebase.json` and `.firebaserc`. It has SPA rewrites, no-cache for `sw.js`/`index.html` so updates arrive, and long-term caching for hashed assets.

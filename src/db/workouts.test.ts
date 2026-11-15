@@ -28,7 +28,7 @@ async function logWorkout(sets: Array<[number, number]>) {
   await addExerciseToWorkout(id, bench.id)
   let rows = await db.sets.where('workoutId').equals(id).sortBy('order')
   while (rows.length < sets.length) {
-    await db.sets.add({ ...rows[0], id: undefined, order: rows.length })
+    await db.sets.add({ ...rows[0], id: undefined, uid: undefined, order: rows.length })
     rows = await db.sets.where('workoutId').equals(id).sortBy('order')
   }
   const prs = []
