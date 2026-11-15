@@ -23,7 +23,7 @@ See [docs/research/fitness-tracking-research.md](docs/research/fitness-tracking-
 - [Dexie](https://dexie.org/) (IndexedDB) for on-device storage
 - [canvas-confetti](https://github.com/catdad/canvas-confetti) for celebrations
 - Vitest + fake-indexeddb for tests
-- Hosted on **Firebase Hosting**, deployed by GitHub Actions
+- Hosted on **Firebase Hosting** (`npm run deploy`)
 
 ## Development
 Requires Node 22 (see `.nvmrc`).
@@ -59,24 +59,15 @@ npm run exercises -- path/to/exercises.json
 - **Signing out** removes the data from that phone (it stays in the account). A different person signing in on the same phone starts with a clean slate.
 
 ## Deployment (Firebase Hosting)
-The config is in `firebase.json` and `.firebaserc`. It has SPA rewrites, no-cache for `sw.js`/`index.html` so updates arrive, and long-term caching for hashed assets.
+The live site is https://fitnessapp-b7602.web.app. The config is in `firebase.json` and `.firebaserc`. It has SPA rewrites, no-cache for `sw.js`/`index.html` so updates arrive, and long-term caching for hashed assets.
 
-**One-time setup:**
-1. Create a project in the [Firebase console](https://console.firebase.google.com/). The free Spark plan is enough.
-2. Put the project ID in `.firebaserc` in place of `REPLACE-WITH-FIREBASE-PROJECT-ID`.
-3. Log in and connect GitHub. This creates the `FIREBASE_SERVICE_ACCOUNT` repo secret:
-   ```bash
-   npx firebase-tools login
-   npx firebase-tools init hosting:github
-   ```
-   When asked, keep the existing `firebase.json` (public dir `dist`, single-page app: yes). Don't let it overwrite the workflow files, because `.github/workflows/deploy-firebase.yml` already exists. If the secret it creates has a different name, rename it to `FIREBASE_SERVICE_ACCOUNT`.
+To deploy, run this from your machine. It builds the site and publishes it along with the Firestore security rules:
+```bash
+npm run deploy
+```
+The first time, log in with `npx firebase-tools login`, using the personal Google account that owns the Firebase project.
 
-**After that:**
-- Pushing to `main` deploys the live site (`https://<project-id>.web.app`).
-- Pull requests get a temporary preview URL for 7 days.
-- Manual deploy from your machine: `npm run deploy`.
-
-Until the secret and project ID are set, the deploy workflow skips itself instead of failing.
+Optional: `.github/workflows/deploy-firebase.yml` can deploy automatically on every push to `main`. It only does this once a `FIREBASE_SERVICE_ACCOUNT` repo secret exists, and skips itself until then.
 
 ## Git account note
 This repo uses the personal **DamianDuPreez** GitHub account. The identity is set in the repo-local git config, not the global one.
